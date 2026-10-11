@@ -1,0 +1,960 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Ley de Ohm interactiva</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+html{background:#EDF1F3}
+/* Layout: banco de laboratorio. Cabecera con idioma, modelo y supuestos, panel doble
+   (pasos 1 a 4 a la izquierda | observar y explicar a la derecha), reflexión, transferencia, límites y pruebas. */
+:root{
+  --bg:#EDF1F3; --surface:#FFFFFF; --ink:#14232B; --muted:#4A5D67; --line:#C7D2D8;
+  --btn-bg:#14232B; --btn-fg:#FFFFFF; --focus:#0B5CAD;
+  --e:#8F5A00; --e-bg:#FBF0DA;
+  --i:#0A6A74; --i-bg:#DAF0F1;
+  --r:#A13A22; --r-bg:#F8E2DC;
+  --good:#1D6A38; --good-bg:#DDF1E3; --bad:#A12222; --bad-bg:#F9E0E0; --warn:#7A4300; --warn-bg:#FCEBCB;
+  --display:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D161B; --surface:#15222A; --ink:#E5EEF1; --muted:#9DB0B9; --line:#2A3B44;
+    --btn-bg:#E5EEF1; --btn-fg:#0D161B; --focus:#7DB8F5;
+    --e:#F0B24A; --e-bg:#2D2411;
+    --i:#5CCFDA; --i-bg:#0F2F35;
+    --r:#F28D72; --r-bg:#35201B;
+    --good:#7ED69B; --good-bg:#14301F; --bad:#FF9B9B; --bad-bg:#3A1C1C; --warn:#F2C06A; --warn-bg:#3A2A0E;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D161B; --surface:#15222A; --ink:#E5EEF1; --muted:#9DB0B9; --line:#2A3B44;
+  --btn-bg:#E5EEF1; --btn-fg:#0D161B; --focus:#7DB8F5;
+  --e:#F0B24A; --e-bg:#2D2411;
+  --i:#5CCFDA; --i-bg:#0F2F35;
+  --r:#F28D72; --r-bg:#35201B;
+  --good:#7ED69B; --good-bg:#14301F; --bad:#FF9B9B; --bad-bg:#3A1C1C; --warn:#F2C06A; --warn-bg:#3A2A0E;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:16px/1.55 var(--body);padding-inline:16px;padding-block:24px 64px;margin:0}
+@media (min-width:1000px){body{font-size:17px}}
+.wrap{max-width:1080px;margin:0 auto;display:grid;gap:24px}
+h1,h2,h3{font-family:var(--display);line-height:1.12;margin:0;text-wrap:balance}
+h1{font-size:clamp(2.2rem,6vw,3.6rem);font-weight:800;letter-spacing:-.02em}
+h2{font-size:1.45rem;font-weight:800;letter-spacing:-.01em}
+h3{font-size:1.05rem;font-weight:700}
+p{margin:0}
+.eyebrow{font:500 .78rem/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.top{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:flex-start}
+.head{display:grid;gap:14px;min-width:0;flex:1 1 420px}
+.lead{max-width:62ch;color:var(--muted);font-size:1.05rem}
+.lang{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--surface)}
+.lang button{font:600 .85rem var(--mono);padding:8px 14px;min-height:40px;border:0;background:transparent;color:var(--ink);cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--btn-bg);color:var(--btn-fg)}
+section.card{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;display:grid;gap:16px;min-width:0}
+.model{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:24px;align-items:center}
+.model-text{display:grid;gap:12px;min-width:0}
+.ranges{display:flex;flex-wrap:wrap;gap:8px;margin:0;padding:0;list-style:none}
+.ranges li{font:500 .85rem var(--mono);padding:6px 10px;border-radius:6px;background:var(--cbg);color:var(--c)}
+.v-E{--c:var(--e);--cbg:var(--e-bg)} .v-I{--c:var(--i);--cbg:var(--i-bg)} .v-R{--c:var(--r);--cbg:var(--r-bg)}
+.triangle{justify-self:center;width:min(100%,260px)}
+.triangle text{font-family:var(--mono);font-weight:500}
+.lab{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,6fr);gap:20px;align-items:start}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:20px;display:grid;gap:18px;min-width:0}
+fieldset{border:0;margin:0;padding:0;min-width:0;display:grid;gap:8px}
+legend{font:700 .98rem var(--body);padding:0;margin-bottom:6px}
+.step{display:grid;gap:8px;min-width:0}
+.step-title{font:500 .78rem/1.2 var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.opts{display:grid;gap:8px}
+.opt{display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:8px;cursor:pointer;min-height:44px}
+.opt:has(input:checked){border-color:var(--ink);background:var(--bg)}
+.opt input{width:18px;height:18px;accent-color:var(--ink);flex:none}
+.opt:focus-within{outline:3px solid var(--focus);outline-offset:2px}
+.sym{font:800 1.05rem var(--mono);color:var(--c)}
+.start{display:flex;flex-wrap:wrap;gap:8px}
+.start span{font:500 .92rem var(--mono);padding:6px 10px;border-radius:6px;background:var(--cbg);color:var(--c)}
+.row{display:grid;gap:8px;padding:12px;border:1px solid var(--line);border-radius:8px}
+.row.locked{opacity:.6}
+.row-head{display:flex;flex-wrap:wrap;gap:8px;align-items:baseline;justify-content:space-between}
+.row-name{display:flex;gap:8px;align-items:baseline}
+.tag{font:500 .72rem var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.field{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.field input[type=text]{width:7.5em;font:500 1.15rem var(--mono);padding:8px 10px;min-height:44px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink)}
+.field input[type=text][aria-invalid="true"]{border-color:var(--bad);background:var(--bad-bg)}
+.field input[disabled]{opacity:.55;cursor:not-allowed}
+.unit{font:500 1rem var(--mono);color:var(--c)}
+input[type=range]{width:100%;accent-color:var(--c);height:32px}
+.hint{font-size:.85rem;color:var(--muted)}
+.err{font-size:.9rem;color:var(--bad);font-weight:500}
+.btn{font:600 .95rem var(--body);padding:10px 16px;border-radius:8px;border:1px solid var(--btn-bg);background:var(--btn-bg);color:var(--btn-fg);cursor:pointer;min-height:44px}
+.btn.ghost{background:transparent;color:var(--ink);border-color:var(--line)}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.btn:focus-visible,.lang button:focus-visible,textarea:focus-visible,input:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.big{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;color:var(--c)}
+.big .num{font:500 clamp(2.4rem,7vw,3.4rem)/1 var(--mono);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+.big .u{font:500 1.5rem var(--mono)}
+.formula{font:500 1rem var(--mono);color:var(--ink);background:var(--bg);padding:10px 12px;border-radius:8px;overflow-wrap:anywhere}
+.chip{display:inline-block;font:600 .85rem var(--body);padding:6px 10px;border-radius:6px}
+.chip.warn{background:var(--warn-bg);color:var(--warn)}
+.chip.bad{background:var(--bad-bg);color:var(--bad)}
+.fb{padding:12px 14px;border-radius:8px;background:var(--bg);border:1px solid var(--line);display:grid;gap:4px}
+.fb:empty{display:none}
+.fb.good{background:var(--good-bg);border-color:var(--good)} .fb.bad{background:var(--bad-bg);border-color:var(--bad)}
+.fb strong{font-weight:600}
+.scroll{overflow-x:auto;max-width:100%}
+table{border-collapse:collapse;width:100%;min-width:420px;font-size:.92rem}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font:500 .74rem var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+td.n{font-family:var(--mono);font-variant-numeric:tabular-nums}
+td .sym{margin-right:6px}
+.circuit{width:100%;height:auto;max-height:260px}
+.circuit .wire{stroke:var(--ink);stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.circuit .plate{stroke:var(--e);stroke-width:4;stroke-linecap:round}
+.circuit .zig{stroke:var(--r);stroke-width:4;fill:none;stroke-linejoin:round;stroke-linecap:round}
+.circuit .flow{stroke:var(--i);fill:none;stroke-linecap:round;stroke-dasharray:2 14;animation:flow var(--dur,2s) linear infinite}
+.circuit .arrow{fill:var(--i)}
+.circuit text{font-family:var(--mono);font-size:15px;font-weight:500}
+@keyframes flow{to{stroke-dashoffset:-16}}
+@media (prefers-reduced-motion:reduce){.circuit .flow{animation:none}}
+textarea{width:100%;min-height:92px;padding:10px 12px;font:1rem/1.5 var(--body);border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);resize:vertical}
+.qa{display:grid;gap:8px}
+.qa label{font-weight:600}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.no-list{margin:0;padding-left:1.2em;display:grid;gap:6px}
+.pass{color:var(--good);font-weight:600} .fail{color:var(--bad);font-weight:600}
+.foot{font-size:.88rem;color:var(--muted);max-width:72ch;display:grid;gap:6px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+@media (max-width:820px){
+  .lab,.model,.two{grid-template-columns:minmax(0,1fr)}
+}
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="head">
+      <p class="eyebrow" data-i="eyebrow"></p>
+      <h1 data-i="h1"></h1>
+      <p class="lead" data-i="lead"></p>
+    </div>
+    <div class="lang" role="group" aria-label="Idioma / Language">
+      <button type="button" id="lang-es" aria-pressed="true">ES</button>
+      <button type="button" id="lang-en" aria-pressed="false">EN</button>
+    </div>
+  </header>
+
+  <section class="card" aria-labelledby="h-model">
+    <h2 id="h-model" data-i="h_model"></h2>
+    <div class="model">
+      <div class="model-text">
+        <p data-i="model_p1"></p>
+        <p data-i="model_p2"></p>
+        <ul class="ranges">
+          <li class="v-E" id="rg-E"></li>
+          <li class="v-I" id="rg-I"></li>
+          <li class="v-R" id="rg-R"></li>
+        </ul>
+      </div>
+      <svg class="triangle" viewBox="0 0 260 190" role="img" aria-labelledby="tri-t">
+        <title id="tri-t" data-i="tri_title"></title>
+        <path d="M130 12 L246 176 H14 Z" fill="none" stroke="var(--ink)" stroke-width="2.5" stroke-linejoin="round"/>
+        <line x1="62" y1="108" x2="198" y2="108" stroke="var(--ink)" stroke-width="2.5"/>
+        <line x1="130" y1="108" x2="130" y2="176" stroke="var(--ink)" stroke-width="2.5"/>
+        <text x="130" y="86" text-anchor="middle" font-size="34" fill="var(--e)">E</text>
+        <text x="88" y="152" text-anchor="middle" font-size="34" fill="var(--i)">I</text>
+        <text x="172" y="152" text-anchor="middle" font-size="34" fill="var(--r)">R</text>
+      </svg>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-act" style="display:grid;gap:16px">
+    <h2 id="h-act" data-i="h_act"></h2>
+    <div class="lab">
+      <div class="panel" id="controls">
+        <div class="step">
+          <p class="step-title" data-i="s1"></p>
+          <fieldset>
+            <legend data-i="calc_legend"></legend>
+            <div class="opts" id="calc-opts"></div>
+          </fieldset>
+          <fieldset>
+            <legend data-i="move_legend"></legend>
+            <div class="opts" id="move-opts"></div>
+          </fieldset>
+          <div>
+            <p class="hint" data-i="start_label"></p>
+            <div class="start" id="start-box"></div>
+          </div>
+        </div>
+
+        <div class="step">
+          <p class="step-title" data-i="s2"></p>
+          <p id="pred-q"></p>
+          <div class="field v-X" id="pred-field">
+            <label for="pred-in" class="sym" id="pred-sym"></label>
+            <input type="text" id="pred-in" inputmode="decimal" autocomplete="off" aria-describedby="pred-err pred-msg">
+            <span class="unit" id="pred-unit"></span>
+            <button type="button" class="btn" id="pred-btn" data-i="pred_btn"></button>
+          </div>
+          <p class="err" id="pred-err" role="alert"></p>
+          <p class="hint" id="pred-msg" aria-live="polite"></p>
+        </div>
+
+        <div class="step">
+          <p class="step-title" data-i="s3"></p>
+          <p class="hint" id="adj-note"></p>
+          <div class="row" id="row-move"></div>
+          <p class="hint" id="fixed-note"></p>
+        </div>
+
+        <div class="step">
+          <p class="step-title" data-i="s4"></p>
+          <div class="actions">
+            <button type="button" class="btn" id="calc-btn" data-i="calc_btn"></button>
+            <button type="button" class="btn ghost" id="reset" data-i="reset"></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="out">
+        <p class="step-title" data-i="s5"></p>
+        <div id="result"></div>
+        <svg class="circuit" id="circuit" viewBox="0 0 380 220" role="img" aria-labelledby="circ-t">
+          <title id="circ-t"></title>
+          <path class="wire" d="M40 94 V40 H125 M235 40 H320 V180 H40 V106"/>
+          <line class="plate" x1="24" y1="94" x2="56" y2="94"/>
+          <line class="plate" x1="31" y1="106" x2="49" y2="106" style="stroke-width:7"/>
+          <polyline class="zig" points="125,40 137,40 147,22 159,58 171,22 183,58 195,22 207,58 217,40 235,40"/>
+          <path class="flow" id="flow" d="M40 94 V40 H320 V180 H40 V106" style="stroke-width:5"/>
+          <polygon class="arrow" points="320,118 311,100 329,100"/>
+          <text id="c-E" x="66" y="104" fill="var(--e)"></text>
+          <text id="c-R" x="180" y="12" text-anchor="middle" fill="var(--r)"></text>
+          <text id="c-I" x="190" y="206" text-anchor="middle" fill="var(--i)"></text>
+        </svg>
+        <div class="scroll">
+          <table id="cmp">
+            <caption class="hint" style="text-align:left;padding-bottom:6px" data-i="cmp_cap"></caption>
+            <thead><tr><th scope="col" data-i="th_var"></th><th scope="col" data-i="th_role"></th><th scope="col" data-i="th_start"></th><th scope="col" data-i="th_now"></th><th scope="col" data-i="th_change"></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div>
+          <h3 data-i="text_eq"></h3>
+          <p id="describe" aria-live="polite"></p>
+        </div>
+        <div class="fb" id="feedback" aria-live="polite"></div>
+        <div class="qa">
+          <label for="explain" data-i="explain_label"></label>
+          <textarea id="explain"></textarea>
+          <p class="hint" data-i="explain_hint"></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="h-ref">
+    <h2 id="h-ref" data-i="h_ref"></h2>
+    <div class="two">
+      <div class="qa"><label for="ref1" data-i="ref1"></label><textarea id="ref1"></textarea></div>
+      <div class="qa"><label for="ref2" data-i="ref2"></label><textarea id="ref2"></textarea></div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="h-tr">
+    <h2 id="h-tr" data-i="h_tr"></h2>
+    <p id="tr-q"></p>
+    <div class="field v-R">
+      <label for="tr-ans" class="sym">R =</label>
+      <input type="text" id="tr-ans" inputmode="decimal" autocomplete="off" aria-describedby="tr-msg">
+      <span class="unit">&Omega;</span>
+      <button type="button" class="btn" id="tr-check" data-i="tr_check"></button>
+    </div>
+    <div class="fb" id="tr-msg" aria-live="polite"></div>
+    <div class="qa"><label for="tr-exp" data-i="tr_exp"></label><textarea id="tr-exp"></textarea></div>
+    <div class="actions">
+      <button type="button" class="btn" id="copy" data-i="copy"></button>
+      <span class="hint" id="copy-msg" aria-live="polite"></span>
+    </div>
+    <textarea id="copy-fallback" hidden readonly aria-label="Texto para copiar"></textarea>
+  </section>
+
+  <section class="card" aria-labelledby="h-out">
+    <h2 id="h-out" data-i="h_out"></h2>
+    <p data-i="out_intro"></p>
+    <ul class="no-list" id="out-list"></ul>
+    <p data-i="out_end"></p>
+  </section>
+
+  <section class="card" aria-labelledby="h-test">
+    <h2 id="h-test" data-i="h_test"></h2>
+    <p data-i="test_intro"></p>
+    <div class="scroll">
+      <table id="tests" style="min-width:560px">
+        <thead><tr><th scope="col" data-i="tt_case"></th><th scope="col" data-i="tt_exp"></th><th scope="col" data-i="tt_got"></th><th scope="col" data-i="tt_ok"></th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="foot">
+    <p data-i="foot"></p>
+    <p id="scorm-state"></p>
+  </div>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- Modelo y calculo (sin DOM) ---------- */
+var RANGES={E:{min:0,max:24,unit:'V',sl:24,step:0.5},I:{min:0,max:24,unit:'A',sl:10,step:0.1},R:{min:1,max:1000,unit:'Ω',sl:100,step:1}};
+var NAMES={es:{E:'Voltaje',I:'Corriente',R:'Resistencia'},en:{E:'Voltage',I:'Current',R:'Resistance'}};
+var BASE={I:{E:12,R:6},E:{I:2,R:6},R:{E:12,I:2}};
+var MOVE_DEFAULT={I:'R',E:'R',R:'I'};
+var INPUTS={I:['E','R'],E:['I','R'],R:['E','I']};
+var EPS=1e-9;
+
+function round6(x){return Math.round(x*1e6)/1e6;}
+
+function validate(variable,raw,calc){
+  var s=String(raw==null?'':raw).trim();
+  if(s==='')return {ok:false,code:'empty'};
+  var s2=s.replace(',','.');
+  if(!/^-?\d+(\.\d+)?$/.test(s2))return {ok:false,code:'format'};
+  var v=Number(s2);
+  if(v<0)return {ok:false,code:'negative'};
+  var r=RANGES[variable];
+  if(variable==='R'&&v===0)return {ok:false,code:'zeroR'};
+  if(variable==='I'&&calc==='R'&&v===0)return {ok:false,code:'zeroI'};
+  if(v<r.min-EPS||v>r.max+EPS)return {ok:false,code:'range'};
+  return {ok:true,value:v};
+}
+function solve(calc,v){
+  if(calc==='I')return round6(v.E/v.R);
+  if(calc==='E')return round6(v.I*v.R);
+  return round6(v.E/v.I);
+}
+function inRange(variable,x){var r=RANGES[variable];return x>=r.min-EPS&&x<=r.max+EPS;}
+function parsePred(raw){
+  var s=String(raw==null?'':raw).trim();
+  if(s==='')return {ok:false,code:'empty'};
+  var s2=s.replace(',','.');
+  if(!/^-?\d+(\.\d+)?$/.test(s2))return {ok:false,code:'format'};
+  var v=Number(s2);
+  if(v<0)return {ok:false,code:'negative'};
+  return {ok:true,value:v};
+}
+function close(pred,real){return Math.abs(pred-real)<=Math.max(0.01,0.01*Math.abs(real));}
+
+/* ---------- Textos ---------- */
+var T={
+es:{
+ eyebrow:'Electrónica · Actividad interactiva',
+ h1:'Ley de Ohm',
+ lead:'Prediga, cambie un valor y compruebe cómo responden el voltaje, la corriente y la resistencia en un circuito simple con una batería y una resistencia.',
+ h_model:'Modelo y supuestos',
+ model_p1:'Una batería ideal de voltaje E alimenta una única resistencia R, y por el lazo cerrado circula una corriente I. La relación que usa la actividad es R = E / I, que también se escribe I = E / R y E = I × R.',
+ model_p2:'Los valores son constantes en el tiempo (corriente continua). Ejemplo de referencia: con E = 12 V y R = 6 Ω, la corriente es I = 12 V / 6 Ω = 2 A.',
+ tri_title:'Triángulo de la ley de Ohm: E arriba, I y R abajo. Tape la letra que busca y lea la operación.',
+ rg:{E:'Voltaje E: de 0 a 24 V',I:'Corriente I: de 0 a 24 A',R:'Resistencia R: de 1 a 1000 Ω'},
+ h_act:'Actividad',
+ s1:'Paso 1 · Elegir el escenario',
+ s2:'Paso 2 · Predecir',
+ s3:'Paso 3 · Ajustar',
+ s4:'Paso 4 · Calcular',
+ s5:'Paso 5 · Observar y explicar',
+ calc_legend:'¿Qué quiere calcular?',
+ move_legend:'¿Qué valor va a mover? El otro queda fijo.',
+ calcOpt:{I:'Corriente I (en amperios)',E:'Voltaje E (en voltios)',R:'Resistencia R (en ohmios)'},
+ start_label:'Punto de partida (ya calculado):',
+ predQ:function(m,c,k,from,to,fixedTxt){return 'Si '+NAMES.es[m]+' ('+m+') pasa de '+from+' a '+to+' (el doble) y '+NAMES.es[k]+' ('+k+') se mantiene en '+fixedTxt+', ¿cuánto vale '+NAMES.es[c]+' ('+c+')? Escriba su predicción antes de usar los controles.';},
+ pred_btn:'Registrar predicción',
+ predEmpty:'Escriba un número para registrar su predicción.',
+ predOkMsg:function(v){return 'Predicción registrada: '+v+'. Ya puede ajustar el valor.';},
+ predWait:'Los controles se habilitan cuando registre su predicción.',
+ adjNote:function(m,t){return 'Su predicción es para '+m+' = '+t+'. Ajuste ese valor y pulse Calcular.';},
+ fixedNote:function(k,v){return 'Queda fijo: '+k+' = '+v+'.';},
+ calc_btn:'Calcular',
+ reset:'Reiniciar actividad',
+ role:{move:'Lo muevo',fixed:'Fijo',calc:'Calculado'},
+ th_var:'Valor',th_role:'Papel',th_start:'Punto de partida',th_now:'Resultado',th_change:'Cambio',
+ cmp_cap:'Comparación con el punto de partida',
+ up:'sube',down:'baja',same:'igual',
+ text_eq:'Descripción en texto',
+ calcLabel:{I:'Corriente I',E:'Voltaje E',R:'Resistencia R'},
+ noResult:'Aún no hay resultado.',
+ noResultBody:'Registre su predicción, ajuste el valor y pulse Calcular. Mientras tanto se muestra el punto de partida.',
+ invalidBody:'Revise el mensaje de error del control. Mientras haya un error no se muestra ningún resultado.',
+ outModel:function(c){var r=RANGES[c];return 'Fuera del rango del modelo ('+r.min+' a '+r.max+' '+r.unit+'). El resultado se calcula, pero la actividad no afirma nada para este caso.';},
+ errors:{
+  empty:function(){return 'Escriba un número.';},
+  format:function(){return 'Escriba solo un número, por ejemplo 12 o 1,5.';},
+  negative:function(){return 'El valor no puede ser negativo. Este modelo solo trata valores de 0 en adelante.';},
+  zeroR:function(){return 'R = 0 Ω es un cortocircuito y queda fuera del modelo. Use 1 Ω o más.';},
+  zeroI:function(){return 'Para calcular R la corriente debe ser mayor que 0 A. No se puede dividir entre cero.';},
+  range:function(v){var r=RANGES[v];return 'Fuera del rango del modelo: de '+r.min+' a '+r.max+' '+r.unit+'.';}
+ },
+ fbIdle:'Aquí aparecerá la comparación entre su predicción y el resultado.',
+ fbOther:function(m,t,c){return 'Su predicción era para '+m+' = '+t+', pero calculó con '+m+' = '+c+'. Ajuste a '+t+' y pulse Calcular para compararla.';},
+ fbOk:function(p,y){return 'Predijo '+p+' y el modelo da '+y+'.';},
+ fbNo:function(p,y){return 'Predijo '+p+' y el modelo da '+y+'.';},
+ fbFactor:function(m,c,f){return 'Al duplicar '+m+', '+c+' se multiplicó por '+f+'.';},
+ okHead:'✔ Coincide',noHead:'✘ No coincide',
+ rel:{
+  'I|E':'Con R fija, I = E / R: al aumentar E, I aumenta en la misma proporción (proporcionalidad directa).',
+  'I|R':'Con E fijo, I = E / R: al aumentar R, I disminuye (proporcionalidad inversa).',
+  'E|I':'Con R fija, E = I × R: al aumentar I, E aumenta en la misma proporción (proporcionalidad directa).',
+  'E|R':'Con I fija, E = I × R: al aumentar R, E aumenta en la misma proporción (proporcionalidad directa).',
+  'R|E':'Con I fija, R = E / I: al aumentar E, R aumenta en la misma proporción (proporcionalidad directa).',
+  'R|I':'Con E fijo, R = E / I: al aumentar I, R disminuye (proporcionalidad inversa).'
+ },
+ descStart:function(t){return 'Punto de partida: '+t+'. Aún no hay resultado.';},
+ descRes:function(f,s,m,a,b){return 'Resultado: '+f+'. Punto de partida: '+s+'. Movió '+m+' de '+a+' a '+b+'.';},
+ descPred:function(p){return ' Su predicción: '+p+'.';},
+ explain_label:'¿Qué cambió y por qué? Explique con sus palabras.',
+ explain_hint:'Escriba al menos 20 caracteres para que la actividad cuente como completada.',
+ h_ref:'Preguntas de reflexión',
+ ref1:'1. Mantenga R fija y aumente E. ¿Qué pasa con I? Explíquelo con R = E / I y con números de la actividad.',
+ ref2:'2. Mantenga E fijo y aumente R. ¿Qué pasa con I? Compare su respuesta con su predicción del paso 2.',
+ h_tr:'Pregunta de transferencia',
+ trQ:'Con valores nuevos: una fuente de 9 V hace circular 0,03 A por una resistencia. ¿Cuál es el valor de esa resistencia en ohmios?',
+ tr_check:'Comprobar',
+ tr_exp:'Explique con sus palabras cómo lo calculó y qué fórmula usó.',
+ trEmpty:'Escriba un número antes de comprobar.',
+ trOk:'Correcto: R = E / I = 9 V / 0,03 A = 300 Ω.',
+ trNo:'No coincide todavía. Pista: aquí se calcula R, así que use R = E / I.',
+ trSol:'La solución es R = 9 V / 0,03 A = 300 Ω. Revise en qué paso difiere su cálculo.',
+ copy:'Copiar mis respuestas',
+ copyOk:'Copiado. Péguelo en su entrega.',
+ copyFail:'No se pudo copiar automáticamente. Seleccione el texto de abajo y cópielo.',
+ copyHead:{pr:'Mi predicción',ex0:'Qué cambió y por qué',r1:'Reflexión 1',r2:'Reflexión 2',tr:'Transferencia (R en Ω)',ex:'Mi explicación'},
+ h_out:'Lo que esta actividad no afirma',
+ out_intro:'El modelo es deliberadamente pequeño. Quedan fuera:',
+ out_items:['La potencia eléctrica (P = E × I) y el calor que disipa la resistencia.','Las caídas de tensión en varios componentes y las leyes de Kirchhoff.','La impedancia y la corriente alterna.','La temperatura, la tolerancia de los componentes reales y la resistencia interna de la batería.','Los componentes que no cumplen la ley de Ohm, como diodos y LED.'],
+ out_end:'Una animación bien presentada no demuestra exactitud física ni que los estudiantes aprendan. Eso requiere probar la actividad con ellos.',
+ h_test:'Comprobaciones del código',
+ test_intro:'Estas pruebas se ejecutan con las mismas funciones que usa la actividad, cada vez que se abre la página.',
+ tt_case:'Caso',tt_exp:'Esperado',tt_got:'Obtenido',tt_ok:'Resultado',
+ pass:'Cumple',fail:'No cumple',
+ tests:{
+  t1:'E = 12 V y R = 6 Ω, calcular I',
+  t2:'E = 5 V e I = 0,5 A, calcular R',
+  t3:'I = 0,2 A y R = 100 Ω, calcular E',
+  t4:'E = 0 V y R = 6 Ω, calcular I',
+  t5:'E = 1,5 V y R = 3 Ω (coma decimal), calcular I',
+  t6:'R = −6 Ω (valor negativo)',
+  t7:'R = 0 Ω (cortocircuito)',
+  t8:'E = 12 V e I = 0 A, calcular R'
+ },
+ foot:'Los resultados los calcula el código de esta página con la fórmula indicada; ninguna IA calcula en la actividad. La página fue redactada con ayuda de Claude. La docente o el docente responsable debe revisar las fórmulas, los rangos y los casos de prueba antes de usarla con estudiantes.',
+ scormOn:'Registro de finalización: conectado al curso (SCORM 1.2). Se marca completada con predicción, cálculo en el valor previsto, explicación y transferencia correcta.',
+ scormOff:'Registro de finalización: sin conexión a un curso. La actividad funciona igual, pero no se registra nada.',
+ scormDone:'Registro de finalización: actividad completada y enviada al curso.'
+},
+en:{
+ eyebrow:'Electronics · Interactive activity',
+ h1:'Ohm’s law',
+ lead:'Predict, change one value, and check how voltage, current and resistance respond in a simple circuit with one battery and one resistor.',
+ h_model:'Model and assumptions',
+ model_p1:'An ideal battery of voltage E powers a single resistor R, and a current I flows around the closed loop. The activity uses R = E / I, which can also be written I = E / R and E = I × R.',
+ model_p2:'Values are constant in time (direct current). Reference example: with E = 12 V and R = 6 Ω, the current is I = 12 V / 6 Ω = 2 A.',
+ tri_title:'Ohm’s law triangle: E on top, I and R below. Cover the letter you want and read the operation.',
+ rg:{E:'Voltage E: 0 to 24 V',I:'Current I: 0 to 24 A',R:'Resistance R: 1 to 1000 Ω'},
+ h_act:'Activity',
+ s1:'Step 1 · Choose the scenario',
+ s2:'Step 2 · Predict',
+ s3:'Step 3 · Adjust',
+ s4:'Step 4 · Calculate',
+ s5:'Step 5 · Observe and explain',
+ calc_legend:'What do you want to calculate?',
+ move_legend:'Which value will you move? The other stays fixed.',
+ calcOpt:{I:'Current I (in amperes)',E:'Voltage E (in volts)',R:'Resistance R (in ohms)'},
+ start_label:'Starting point (already calculated):',
+ predQ:function(m,c,k,from,to,fixedTxt){return 'If '+NAMES.en[m]+' ('+m+') goes from '+from+' to '+to+' (double) and '+NAMES.en[k]+' ('+k+') stays fixed at '+fixedTxt+', what is the value of '+NAMES.en[c]+' ('+c+')? Write your prediction before using the controls.';},
+ pred_btn:'Save prediction',
+ predEmpty:'Type a number to save your prediction.',
+ predOkMsg:function(v){return 'Prediction saved: '+v+'. You can now adjust the value.';},
+ predWait:'The controls unlock once you save your prediction.',
+ adjNote:function(m,t){return 'Your prediction is for '+m+' = '+t+'. Set that value and press Calculate.';},
+ fixedNote:function(k,v){return 'Stays fixed: '+k+' = '+v+'.';},
+ calc_btn:'Calculate',
+ reset:'Reset activity',
+ role:{move:'I move it',fixed:'Fixed',calc:'Calculated'},
+ th_var:'Value',th_role:'Role',th_start:'Starting point',th_now:'Result',th_change:'Change',
+ cmp_cap:'Comparison with the starting point',
+ up:'goes up',down:'goes down',same:'same',
+ text_eq:'Text description',
+ calcLabel:{I:'Current I',E:'Voltage E',R:'Resistance R'},
+ noResult:'No result yet.',
+ noResultBody:'Save your prediction, set the value and press Calculate. Until then the starting point is shown.',
+ invalidBody:'Check the control’s error message. While there is an error, no result is shown.',
+ outModel:function(c){var r=RANGES[c];return 'Outside the model range ('+r.min+' to '+r.max+' '+r.unit+'). The result is calculated, but the activity makes no claim for this case.';},
+ errors:{
+  empty:function(){return 'Type a number.';},
+  format:function(){return 'Type only a number, for example 12 or 1.5.';},
+  negative:function(){return 'The value cannot be negative. This model only covers values from 0 up.';},
+  zeroR:function(){return 'R = 0 Ω is a short circuit and is outside the model. Use 1 Ω or more.';},
+  zeroI:function(){return 'To calculate R the current must be greater than 0 A. You cannot divide by zero.';},
+  range:function(v){var r=RANGES[v];return 'Outside the model range: '+r.min+' to '+r.max+' '+r.unit+'.';}
+ },
+ fbIdle:'The comparison between your prediction and the result will appear here.',
+ fbOther:function(m,t,c){return 'Your prediction was for '+m+' = '+t+', but you calculated with '+m+' = '+c+'. Set '+t+' and press Calculate to compare.';},
+ fbOk:function(p,y){return 'You predicted '+p+' and the model gives '+y+'.';},
+ fbNo:function(p,y){return 'You predicted '+p+' and the model gives '+y+'.';},
+ fbFactor:function(m,c,f){return 'When '+m+' doubled, '+c+' was multiplied by '+f+'.';},
+ okHead:'✔ Matches',noHead:'✘ Does not match',
+ rel:{
+  'I|E':'With R fixed, I = E / R: when E increases, I increases by the same factor (direct proportion).',
+  'I|R':'With E fixed, I = E / R: when R increases, I decreases (inverse proportion).',
+  'E|I':'With R fixed, E = I × R: when I increases, E increases by the same factor (direct proportion).',
+  'E|R':'With I fixed, E = I × R: when R increases, E increases by the same factor (direct proportion).',
+  'R|E':'With I fixed, R = E / I: when E increases, R increases by the same factor (direct proportion).',
+  'R|I':'With E fixed, R = E / I: when I increases, R decreases (inverse proportion).'
+ },
+ descStart:function(t){return 'Starting point: '+t+'. No result yet.';},
+ descRes:function(f,s,m,a,b){return 'Result: '+f+'. Starting point: '+s+'. You moved '+m+' from '+a+' to '+b+'.';},
+ descPred:function(p){return ' Your prediction: '+p+'.';},
+ explain_label:'What changed and why? Explain in your own words.',
+ explain_hint:'Write at least 20 characters so the activity counts as completed.',
+ h_ref:'Reflection questions',
+ ref1:'1. Keep R fixed and increase E. What happens to I? Explain it with R = E / I and with numbers from the activity.',
+ ref2:'2. Keep E fixed and increase R. What happens to I? Compare your answer with your prediction from step 2.',
+ h_tr:'Transfer question',
+ trQ:'With new values: a 9 V source drives 0.03 A through a resistor. What is the value of that resistor in ohms?',
+ tr_check:'Check',
+ tr_exp:'Explain in your own words how you calculated it and which formula you used.',
+ trEmpty:'Type a number before checking.',
+ trOk:'Correct: R = E / I = 9 V / 0.03 A = 300 Ω.',
+ trNo:'Not yet. Hint: here you calculate R, so use R = E / I.',
+ trSol:'The solution is R = 9 V / 0.03 A = 300 Ω. Check which step of your calculation differs.',
+ copy:'Copy my answers',
+ copyOk:'Copied. Paste it into your submission.',
+ copyFail:'Automatic copy failed. Select the text below and copy it.',
+ copyHead:{pr:'My prediction',ex0:'What changed and why',r1:'Reflection 1',r2:'Reflection 2',tr:'Transfer (R in Ω)',ex:'My explanation'},
+ h_out:'What this activity does not claim',
+ out_intro:'The model is deliberately small. These are left out:',
+ out_items:['Electrical power (P = E × I) and the heat the resistor dissipates.','Voltage drops across several components and Kirchhoff’s laws.','Impedance and alternating current.','Temperature, real component tolerance and the battery’s internal resistance.','Components that do not follow Ohm’s law, such as diodes and LEDs.'],
+ out_end:'A well-presented animation does not prove physical accuracy or that students learn. That takes testing the activity with them.',
+ h_test:'Code checks',
+ test_intro:'These tests run with the same functions the activity uses, every time the page opens.',
+ tt_case:'Case',tt_exp:'Expected',tt_got:'Got',tt_ok:'Result',
+ pass:'Pass',fail:'Fail',
+ tests:{
+  t1:'E = 12 V and R = 6 Ω, calculate I',
+  t2:'E = 5 V and I = 0.5 A, calculate R',
+  t3:'I = 0.2 A and R = 100 Ω, calculate E',
+  t4:'E = 0 V and R = 6 Ω, calculate I',
+  t5:'E = 1,5 V and R = 3 Ω (decimal comma), calculate I',
+  t6:'R = −6 Ω (negative value)',
+  t7:'R = 0 Ω (short circuit)',
+  t8:'E = 12 V and I = 0 A, calculate R'
+ },
+ foot:'The results are calculated by this page’s code with the stated formula; no AI calculates anything in the activity. The page was drafted with help from Claude. The responsible teacher must review the formulas, ranges and test cases before using it with students.',
+ scormOn:'Completion tracking: connected to the course (SCORM 1.2). Marked complete with prediction, calculation at the planned value, explanation and a correct transfer answer.',
+ scormOff:'Completion tracking: not connected to a course. The activity works the same, but nothing is recorded.',
+ scormDone:'Completion tracking: activity completed and sent to the course.'
+}
+};
+
+/* ---------- Estado ---------- */
+var S={lang:'es',calc:'I',moving:'R',pred:null,predText:'',curMove:'',result:null,hit:false,predOk:false,predScored:false,trOk:false,trFirst:false,trAttempts:0};
+function L(){return T[S.lang];}
+function $(id){return document.getElementById(id);}
+function fmt(n){
+  var s=String(Number(round6(n).toFixed(4)));
+  return S.lang==='es'?s.replace('.',','):s;
+}
+function fmtU(variable,n){return fmt(n)+' '+RANGES[variable].unit;}
+
+function baseValues(calc){var b={};INPUTS[calc].forEach(function(v){b[v]=BASE[calc][v];});b[calc]=solve(calc,b);return b;}
+function ctx(){
+  var base=baseValues(S.calc);
+  var fixed=INPUTS[S.calc].filter(function(x){return x!==S.moving;})[0];
+  var target=round6(base[S.moving]*2);
+  var v={};v[fixed]=base[fixed];v[S.moving]=target;
+  return {base:base,fixed:fixed,target:target,expected:solve(S.calc,v)};
+}
+function resetScenario(){
+  var c=ctx();
+  S.pred=null;S.predText='';S.curMove=fmt(c.base[S.moving]);S.result=null;S.hit=false;
+}
+
+/* ---------- Paso 1: escenario ---------- */
+function buildScenario(){
+  var cb=$('calc-opts');cb.innerHTML='';
+  ['I','E','R'].forEach(function(v){
+    var lab=document.createElement('label');lab.className='opt v-'+v;
+    var inp=document.createElement('input');inp.type='radio';inp.name='calc';inp.value=v;inp.id='calc-'+v;inp.checked=(S.calc===v);
+    inp.addEventListener('change',function(){S.calc=v;S.moving=MOVE_DEFAULT[v];resetScenario();renderAll();$('calc-'+v).focus();});
+    var sp=document.createElement('span');sp.textContent=L().calcOpt[v];
+    lab.appendChild(inp);lab.appendChild(sp);cb.appendChild(lab);
+  });
+  var mb=$('move-opts');mb.innerHTML='';
+  INPUTS[S.calc].forEach(function(v){
+    var lab=document.createElement('label');lab.className='opt v-'+v;
+    var inp=document.createElement('input');inp.type='radio';inp.name='move';inp.value=v;inp.id='move-'+v;inp.checked=(S.moving===v);
+    inp.addEventListener('change',function(){S.moving=v;resetScenario();renderAll();$('move-'+v).focus();});
+    var sp=document.createElement('span');
+    sp.innerHTML='<span class="sym">'+v+'</span> '+NAMES[S.lang][v]+' ('+RANGES[v].unit+')';
+    lab.appendChild(inp);lab.appendChild(sp);mb.appendChild(lab);
+  });
+  var c=ctx(),sb=$('start-box');sb.innerHTML='';
+  ['E','I','R'].forEach(function(v){
+    var s=document.createElement('span');s.className='v-'+v;
+    s.textContent=v+' = '+fmtU(v,c.base[v])+(v===S.calc?' *':'');
+    sb.appendChild(s);
+  });
+}
+
+/* ---------- Paso 2: predecir ---------- */
+function buildPredict(){
+  var c=ctx(),m=S.moving,k=c.fixed,l=L();
+  $('pred-q').textContent=l.predQ(m,S.calc,k,fmtU(m,c.base[m]),fmtU(m,c.target),fmtU(k,c.base[k]));
+  var f=$('pred-field');f.className='field v-'+S.calc;
+  $('pred-sym').textContent=S.calc+' =';
+  $('pred-unit').textContent=RANGES[S.calc].unit;
+  var inp=$('pred-in');
+  inp.value=S.pred!==null?fmt(S.pred):S.predText;
+  inp.disabled=S.pred!==null;
+  $('pred-btn').disabled=S.pred!==null;
+  $('pred-err').textContent='';
+  $('pred-msg').textContent=S.pred!==null?l.predOkMsg(fmtU(S.calc,S.pred)):'';
+}
+
+function registerPrediction(){
+  var l=L(),r=parsePred($('pred-in').value);
+  if(!r.ok){
+    $('pred-in').setAttribute('aria-invalid','true');
+    $('pred-err').textContent=(r.code==='empty')?l.predEmpty:l.errors[r.code]();
+    return;
+  }
+  $('pred-in').setAttribute('aria-invalid','false');
+  S.pred=r.value;
+  buildPredict();buildAdjust();updateOut();scormUpdate();
+  var mi=$('in-move');if(mi)mi.focus();
+}
+
+/* ---------- Paso 3: ajustar ---------- */
+function buildAdjust(){
+  var c=ctx(),m=S.moving,l=L(),row=$('row-move'),locked=(S.pred===null);
+  var r=RANGES[m];
+  row.className='row v-'+m+(locked?' locked':'');
+  row.innerHTML=
+    '<div class="row-head"><div class="row-name"><span class="sym">'+m+'</span><label for="in-move">'+NAMES[S.lang][m]+'</label></div><span class="tag">'+l.role.move+'</span></div>'+
+    '<div class="field"><input type="text" id="in-move" inputmode="decimal" autocomplete="off" aria-describedby="err-move hint-move"'+(locked?' disabled':'')+'><span class="unit">'+r.unit+'</span></div>'+
+    '<input type="range" id="sl-move" min="'+r.min+'" max="'+r.sl+'" step="'+r.step+'" aria-label="'+NAMES[S.lang][m]+' ('+r.unit+')"'+(locked?' disabled':'')+'>'+
+    '<p class="hint" id="hint-move"></p><p class="err" id="err-move" role="alert"></p>';
+  var txt=$('in-move'),sl=$('sl-move');
+  txt.value=S.curMove;
+  var v0=validate(m,S.curMove,S.calc);
+  sl.value=v0.ok?Math.min(v0.value,r.sl):r.min;
+  $('hint-move').textContent=r.min+' – '+r.max+' '+r.unit+(r.sl<r.max?' ('+(S.lang==='es'?'el control llega hasta ':'the slider goes up to ')+r.sl+')':'');
+  txt.addEventListener('input',function(){
+    S.curMove=txt.value;S.result=null;
+    var q=validate(m,txt.value,S.calc);
+    if(q.ok)sl.value=Math.min(q.value,r.sl);
+    $('err-move').textContent='';txt.setAttribute('aria-invalid','false');
+    updateOut();
+  });
+  sl.addEventListener('input',function(){
+    txt.value=fmt(Number(sl.value));S.curMove=txt.value;S.result=null;
+    $('err-move').textContent='';txt.setAttribute('aria-invalid','false');
+    updateOut();
+  });
+  $('adj-note').textContent=locked?l.predWait:l.adjNote(m,fmtU(m,c.target));
+  $('fixed-note').textContent=l.fixedNote(c.fixed,fmtU(c.fixed,c.base[c.fixed]));
+  $('calc-btn').disabled=locked;
+}
+
+/* ---------- Paso 4: calcular ---------- */
+function runCalc(){
+  if(S.pred===null)return;
+  var c=ctx(),m=S.moving,l=L();
+  var q=validate(m,S.curMove,S.calc);
+  var txt=$('in-move');
+  if(!q.ok){
+    S.result=null;
+    txt.setAttribute('aria-invalid','true');
+    $('err-move').textContent=l.errors[q.code](m);
+    updateOut();
+    return;
+  }
+  txt.setAttribute('aria-invalid','false');$('err-move').textContent='';
+  var v={};v[c.fixed]=c.base[c.fixed];v[m]=q.value;
+  v[S.calc]=solve(S.calc,v);
+  S.result={values:v,out:!inRange(S.calc,v[S.calc]),movedTo:q.value};
+  if(Math.abs(q.value-c.target)<EPS){
+    S.hit=true;
+    if(!S.predScored){S.predOk=close(S.pred,v[S.calc]);S.predScored=true;}
+  }
+  updateOut();scormUpdate();
+}
+
+/* ---------- Observar ---------- */
+function shown(){return S.result?S.result.values:baseValues(S.calc);}
+
+function renderResult(){
+  var box=$('result'),l=L(),c=S.calc,h='';
+  if(!S.result){
+    var invalid=false;
+    if(S.pred!==null){invalid=!validate(S.moving,S.curMove,S.calc).ok;}
+    h='<div class="big v-'+c+'"><span class="num">—</span></div><p><span class="chip '+(invalid?'bad':'warn')+'">'+l.noResult+'</span></p><p class="hint">'+(invalid?l.invalidBody:l.noResultBody)+'</p>';
+  }else{
+    var v=S.result.values;
+    var f;
+    if(c==='I')f='I = E / R = '+fmtU('E',v.E)+' / '+fmtU('R',v.R)+' = '+fmtU('I',v.I);
+    else if(c==='E')f='E = I × R = '+fmtU('I',v.I)+' × '+fmtU('R',v.R)+' = '+fmtU('E',v.E);
+    else f='R = E / I = '+fmtU('E',v.E)+' / '+fmtU('I',v.I)+' = '+fmtU('R',v.R);
+    h='<p class="tag">'+l.calcLabel[c]+'</p><div class="big v-'+c+'"><span class="num">'+fmt(v[c])+'</span><span class="u">'+RANGES[c].unit+'</span></div><p class="formula">'+f+'</p>';
+    if(S.result.out)h+='<p><span class="chip warn">'+l.outModel(c)+'</span></p>';
+  }
+  box.innerHTML=h;
+}
+
+function roleOf(v){
+  if(v===S.calc)return L().role.calc;
+  return v===S.moving?L().role.move:L().role.fixed;
+}
+
+function renderTable(){
+  var tb=$('cmp').querySelector('tbody');tb.innerHTML='';
+  var base=baseValues(S.calc);
+  ['E','I','R'].forEach(function(v){
+    var tr=document.createElement('tr');
+    var now=S.result?S.result.values[v]:null;
+    var chg='—';
+    if(now!==null){
+      if(Math.abs(now-base[v])<EPS)chg='= ('+L().same+')';
+      else{
+        var up=now>base[v];
+        var fac=base[v]>0?' ×'+fmt(now/base[v]):'';
+        chg=(up?'▲ ':'▼ ')+(up?L().up:L().down)+fac;
+      }
+    }
+    var tds=['<span class="sym v-'+v+'">'+v+'</span>'+NAMES[S.lang][v],roleOf(v),fmtU(v,base[v]),now!==null?fmtU(v,now):'—',chg];
+    tds.forEach(function(x,i){var td=document.createElement('td');td.innerHTML=x;if(i>=2)td.className='n';tr.appendChild(td);});
+    tb.appendChild(tr);
+  });
+}
+
+function renderCircuit(){
+  var v=shown(),flow=$('flow'),es=S.lang==='es';
+  $('c-E').textContent='E = '+fmtU('E',v.E);
+  $('c-R').textContent='R = '+fmtU('R',v.R);
+  $('c-I').textContent='I = '+fmtU('I',v.I);
+  flow.style.strokeWidth=String(2+Math.min(v.I,10)/10*6);
+  flow.style.setProperty('--dur',Math.max(0.5,3/(1+v.I))+'s');
+  flow.style.opacity=v.I<EPS?'0':'1';
+  var which=S.result?(es?'Resultado':'Result'):(es?'Punto de partida':'Starting point');
+  $('circ-t').textContent=(es
+    ?'Circuito de una batería y una resistencia. '+which+': E = '+fmtU('E',v.E)+', R = '+fmtU('R',v.R)+', I = '+fmtU('I',v.I)+(v.I<EPS?'. No circula corriente.':'. La corriente circula en el sentido de la flecha.')
+    :'Circuit with one battery and one resistor. '+which+': E = '+fmtU('E',v.E)+', R = '+fmtU('R',v.R)+', I = '+fmtU('I',v.I)+(v.I<EPS?'. No current flows.':'. Current flows in the direction of the arrow.'));
+}
+
+function formulaText(v){
+  var c=S.calc;
+  return c==='I'?'I = E / R = '+fmtU('E',v.E)+' / '+fmtU('R',v.R)+' = '+fmtU('I',v.I)
+   :c==='E'?'E = I × R = '+fmtU('I',v.I)+' × '+fmtU('R',v.R)+' = '+fmtU('E',v.E)
+   :'R = E / I = '+fmtU('E',v.E)+' / '+fmtU('I',v.I)+' = '+fmtU('R',v.R);
+}
+
+function renderDescribe(){
+  var l=L(),b=baseValues(S.calc);
+  var startTxt='E = '+fmtU('E',b.E)+', I = '+fmtU('I',b.I)+', R = '+fmtU('R',b.R);
+  var out;
+  if(!S.result){out=l.descStart(startTxt);}
+  else{out=l.descRes(formulaText(S.result.values),startTxt,S.moving,fmtU(S.moving,b[S.moving]),fmtU(S.moving,S.result.movedTo));}
+  if(S.pred!==null)out+=l.descPred(fmtU(S.calc,S.pred));
+  $('describe').textContent=out;
+}
+
+function renderFeedback(){
+  var fb=$('feedback'),l=L(),c=ctx();
+  fb.className='fb';fb.innerHTML='';
+  if(S.pred===null||!S.result){fb.className='fb';fb.textContent=S.pred===null?'':'';return;}
+  var calc=S.calc,m=S.moving;
+  if(Math.abs(S.result.movedTo-c.target)>=EPS){
+    fb.textContent=l.fbOther(m,fmtU(m,c.target),fmtU(m,S.result.movedTo));return;
+  }
+  var y=S.result.values[calc],ok=close(S.pred,y);
+  fb.className='fb '+(ok?'good':'bad');
+  var s=document.createElement('strong');s.textContent=ok?l.okHead:l.noHead;
+  var p1=document.createElement('span');p1.textContent=(ok?l.fbOk:l.fbNo)(fmtU(calc,S.pred),fmtU(calc,y));
+  var base=c.base[calc];
+  var p2=document.createElement('span');p2.textContent=base>0?l.fbFactor(m,calc,fmt(y/base)):'';
+  var p3=document.createElement('span');p3.textContent=l.rel[calc+'|'+m];
+  fb.appendChild(s);fb.appendChild(p1);if(p2.textContent)fb.appendChild(p2);fb.appendChild(p3);
+}
+
+function updateOut(){
+  renderResult();renderTable();renderCircuit();renderDescribe();renderFeedback();
+}
+
+/* ---------- Transferencia ---------- */
+function checkTransfer(){
+  var l=L(),msg=$('tr-msg');msg.className='fb';
+  var r=parsePred($('tr-ans').value);
+  if(!r.ok){
+    msg.className=r.code==='empty'?'fb':'fb bad';
+    msg.textContent=r.code==='empty'?l.trEmpty:l.errors[r.code]();
+    return;
+  }
+  var ok=Math.abs(r.value-solve('R',{E:9,I:0.03}))<0.01;
+  S.trAttempts++;
+  if(ok){
+    msg.className='fb good';msg.textContent=l.trOk;
+    if(!S.trOk){S.trOk=true;S.trFirst=(S.trAttempts===1);}
+    scormUpdate();return;
+  }
+  msg.className='fb bad';
+  msg.textContent=S.trAttempts>=2?l.trNo+' '+l.trSol:l.trNo;
+}
+
+function copyAnswers(){
+  var l=L(),h=l.copyHead;
+  var text=h.pr+': '+(S.pred!==null?fmtU(S.calc,S.pred):'')+'\n'+h.ex0+': '+$('explain').value+'\n'+h.r1+': '+$('ref1').value+'\n'+h.r2+': '+$('ref2').value+'\n'+h.tr+': '+$('tr-ans').value+'\n'+h.ex+': '+$('tr-exp').value;
+  var fall=$('copy-fallback'),msg=$('copy-msg');
+  function fallback(){fall.hidden=false;fall.value=text;fall.focus();fall.select();msg.textContent=l.copyFail;}
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(function(){fall.hidden=true;msg.textContent=l.copyOk;},fallback);
+    }else{fallback();}
+  }catch(e){fallback();}
+}
+
+/* ---------- SCORM 1.2 ---------- */
+var scorm={api:null,ready:false,reported:false};
+function findAPI(w){
+  var n=0;
+  while(n<10){
+    try{ if(w.API)return w.API; }catch(e){ return null; }
+    try{ if(!w.parent||w.parent===w)return null; w=w.parent; }catch(e2){ return null; }
+    n++;
+  }
+  return null;
+}
+function scormStart(){
+  try{
+    var a=findAPI(window);
+    if(!a&&window.opener)a=findAPI(window.opener);
+    if(a&&String(a.LMSInitialize(''))==='true'){
+      scorm.api=a;scorm.ready=true;
+      var st=a.LMSGetValue('cmi.core.lesson_status');
+      if(st===''||st==='not attempted')a.LMSSetValue('cmi.core.lesson_status','incomplete');
+      a.LMSCommit('');
+    }
+  }catch(e){}
+}
+function scormScore(){return (S.predOk?50:0)+(S.trFirst?50:0);}
+function scormDoneNow(){
+  return S.pred!==null&&S.hit&&$('explain').value.trim().length>=20&&S.trOk;
+}
+function scormUpdate(){
+  if(!scorm.ready||scorm.reported)return;
+  try{
+    if(scormDoneNow()){
+      var a=scorm.api;
+      a.LMSSetValue('cmi.core.score.min','0');
+      a.LMSSetValue('cmi.core.score.max','100');
+      a.LMSSetValue('cmi.core.score.raw',String(scormScore()));
+      a.LMSSetValue('cmi.core.lesson_status','completed');
+      a.LMSCommit('');
+      scorm.reported=true;
+    }
+  }catch(e){}
+  renderScormState();
+}
+function renderScormState(){
+  var l=L();
+  $('scorm-state').textContent=scorm.reported?l.scormDone:(scorm.ready?l.scormOn:l.scormOff);
+}
+window.addEventListener('pagehide',function(){try{if(scorm.ready){scorm.api.LMSCommit('');scorm.api.LMSFinish('');}}catch(e){}});
+
+/* ---------- Pruebas del codigo ---------- */
+var TESTS=[
+ {id:'t1',calc:'I',vals:{E:'12',R:'6'},want:{value:2}},
+ {id:'t2',calc:'R',vals:{E:'5',I:'0.5'},want:{value:10}},
+ {id:'t3',calc:'E',vals:{I:'0.2',R:'100'},want:{value:20}},
+ {id:'t4',calc:'I',vals:{E:'0',R:'6'},want:{value:0}},
+ {id:'t5',calc:'I',vals:{E:'1,5',R:'3'},want:{value:0.5}},
+ {id:'t6',calc:'I',vals:{E:'12',R:'-6'},want:{error:'negative'}},
+ {id:'t7',calc:'I',vals:{E:'12',R:'0'},want:{error:'zeroR'}},
+ {id:'t8',calc:'R',vals:{E:'12',I:'0'},want:{error:'zeroI'}}
+];
+function runTest(t){
+  var vals={};
+  for(var i=0;i<INPUTS[t.calc].length;i++){
+    var v=INPUTS[t.calc][i];var r=validate(v,t.vals[v],t.calc);
+    if(!r.ok)return {error:r.code};
+    vals[v]=r.value;
+  }
+  return {value:solve(t.calc,vals)};
+}
+function renderTests(){
+  var tb=$('tests').querySelector('tbody');tb.innerHTML='';
+  var l=L();
+  TESTS.forEach(function(t){
+    var got=runTest(t),ok;
+    if(t.want.error)ok=(got.error===t.want.error);else ok=(got.value!==undefined&&Math.abs(got.value-t.want.value)<EPS);
+    var wantTxt=t.want.error?'Error: '+l.errors[t.want.error](t.calc):fmtU(t.calc,t.want.value);
+    var gotTxt=got.error?'Error: '+l.errors[got.error](t.calc):fmtU(t.calc,got.value);
+    var tr=document.createElement('tr');
+    [l.tests[t.id],wantTxt,gotTxt].forEach(function(x){var td=document.createElement('td');td.textContent=x;tr.appendChild(td);});
+    var td=document.createElement('td');td.className=ok?'pass':'fail';td.textContent=(ok?'✔ ':'✘ ')+(ok?l.pass:l.fail);tr.appendChild(td);
+    tb.appendChild(tr);
+  });
+}
+
+/* ---------- Idioma y arranque ---------- */
+function applyStatic(){
+  var l=L();
+  document.documentElement.lang=S.lang;
+  document.querySelectorAll('[data-i]').forEach(function(el){var k=el.getAttribute('data-i');if(typeof l[k]==='string')el.textContent=l[k];});
+  ['E','I','R'].forEach(function(v){$('rg-'+v).textContent=l.rg[v];});
+  $('tr-q').textContent=l.trQ;
+  var ul=$('out-list');ul.innerHTML='';
+  l.out_items.forEach(function(x){var li=document.createElement('li');li.textContent=x;ul.appendChild(li);});
+  $('lang-es').setAttribute('aria-pressed',S.lang==='es'?'true':'false');
+  $('lang-en').setAttribute('aria-pressed',S.lang==='en'?'true':'false');
+  $('tr-msg').textContent='';$('tr-msg').className='fb';
+  renderScormState();
+}
+function renderAll(){
+  applyStatic();
+  buildScenario();
+  buildPredict();
+  buildAdjust();
+  updateOut();
+  renderTests();
+}
+function setLang(lang){
+  if(lang===S.lang)return;
+  S.lang=lang;
+  var v=validate(S.moving,S.curMove,S.calc);
+  if(v.ok)S.curMove=fmt(v.value);
+  var p=parsePred(S.predText);if(S.pred===null&&p.ok)S.predText=fmt(p.value);
+  renderAll();
+}
+$('lang-es').addEventListener('click',function(){setLang('es');});
+$('lang-en').addEventListener('click',function(){setLang('en');});
+$('reset').addEventListener('click',function(){S.moving=MOVE_DEFAULT[S.calc];resetScenario();renderAll();});
+$('pred-btn').addEventListener('click',registerPrediction);
+$('pred-in').addEventListener('input',function(){S.predText=$('pred-in').value;$('pred-in').setAttribute('aria-invalid','false');$('pred-err').textContent='';});
+$('pred-in').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();registerPrediction();}});
+$('calc-btn').addEventListener('click',runCalc);
+$('explain').addEventListener('input',scormUpdate);
+$('tr-check').addEventListener('click',checkTransfer);
+$('tr-ans').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();checkTransfer();}});
+$('copy').addEventListener('click',copyAnswers);
+
+scormStart();
+S.moving=MOVE_DEFAULT[S.calc];
+resetScenario();
+renderAll();
+
+window.__ohm={validate:validate,solve:solve,runTest:runTest,TESTS:TESTS,close:close,S:S};
+})();
+</script>
+
+
+</body></html>
